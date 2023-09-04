@@ -244,7 +244,7 @@ def main(args):
             for pg, pg_old in zip(optimizer.param_groups, p_groups):
                 pg['lr'] = pg_old['lr']
                 pg['initial_lr'] = pg_old['initial_lr']
-            print(optimizer.param_groups)
+            # print(optimizer.param_groups)
             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
             # todo: this is a hack for doing experiment that resume from checkpoint and also modify lr scheduler (e.g., decrease lr in advance).
             args.override_resumed_lr_drop = True
@@ -255,10 +255,10 @@ def main(args):
             lr_scheduler.step(lr_scheduler.last_epoch)
             args.start_epoch = checkpoint['epoch'] + 1
         # check the resumed model
-        if not args.eval:
-            test_stats, coco_evaluator = evaluate(
-                model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
-            )
+        # if not args.eval:
+        #     test_stats, coco_evaluator = evaluate(
+        #         model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
+        #     )
     
     if args.eval:
         test_stats, coco_evaluator = evaluate(model, criterion, postprocessors,
