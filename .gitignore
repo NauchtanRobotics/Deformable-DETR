@@ -2,3 +2,5 @@ raw_data
 data
 data.zip
 .vscode
+demo.sh
+*.pyc
