@@ -29,6 +29,7 @@ from engine import evaluate, train_one_epoch
 from models import build_model
 import time
 import os
+import json
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Deformable DETR Detector', add_help=False)
@@ -110,7 +111,7 @@ def get_args_parser():
     parser.add_argument('--focal_alpha', default=0.25, type=float)
 
     # dataset parameters
-    parser.add_argument('--dataset_file', default='ICDAR2013')
+    parser.add_argument('--dataset_file', default='coco')
     parser.add_argument('--coco_path', default='./data/coco', type=str)
     parser.add_argument('--coco_panoptic_path', type=str)
     parser.add_argument('--remove_difficult', action='store_true')
@@ -128,11 +129,12 @@ def get_args_parser():
     parser.add_argument('--num_workers', default=2, type=int)
     parser.add_argument('--cache_mode', default=False, action='store_true', help='whether to cache images on memory')
 
+
     return parser
 
 # standard PyTorch mean-std input image normalization
 transform = T.Compose([
-    T.Resize(800),
+    T.Resize(640),
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -161,11 +163,17 @@ def main(args):
         model.cuda()
     model.eval()
 
-    
+    NAMES = ['bus', 'car', 'heavy truck', 'light truck', 'motorbike']
+    COLORS = ['#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f']
+
+    anno = json.load(open('/content/Deformable-DETR/data/coco/annotations/instances_val2017.json'))
+
+    font = ImageFont.truetype('/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf', 18)
+
     for img_file in os.listdir(args.imgs_dir):
         t0 = time.time()
         img_path = os.path.join(args.imgs_dir, img_file)
-        out_imgName = './visualize/'+'out_'+img_file[:-4]+'.png'
+        out_imgName = './'+ args.output_dir + '/' + 'out_'+img_file[:-4]+'.png'
         im = Image.open(img_path)
         # mean-std normalize the input image (batch-size: 1)
         img = transform(im).unsqueeze(0)
@@ -199,14 +207,36 @@ def main(args):
         print(time.time()-t0)
         #plot_results
         source_img = Image.open(img_path).convert("RGBA")
+        _source_img = Image.open(img_path).convert("RGBA")
 
         draw = ImageDraw.Draw(source_img)
+        _draw = ImageDraw.Draw(_source_img)
         
-        print("Boxes",boxes,boxes.tolist())
+        i = 0
         for xmin, ymin, xmax, ymax in boxes[0].tolist():
-            draw.rectangle(((xmin, ymin), (xmax, ymax)), outline ="red")
+            label = labels[i] - 1
+            draw.rectangle(((xmin, ymin), (xmax, ymax)), outline=COLORS[label], width=3)
+            draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
 
-        source_img.save(out_imgName, "png")
+            i += 1
+
+        for img in anno['images']:
+            if img['file_name'] == img_file:
+                img_id = img['id']
+
+        for obj in anno['annotations']:
+            if obj['image_id'] == img_id:
+                xmin, ymin, w, h = obj['bbox']
+                label = obj['category_id'] - 1
+
+                _draw.rectangle(((xmin, ymin), (xmin + w, ymin + h)), outline=COLORS[label], width=3)
+                _draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
+
+        dst = Image.new('RGB', (source_img.width + _source_img.width, source_img.height))
+        dst.paste(_source_img, (0, 0))
+        dst.paste(source_img, (_source_img.width, 0))
+
+        dst.save(out_imgName, "png")
     #results = [{'scores': s, 'labels': l, 'boxes': b} for s, l, b in zip(scores, labels, boxes)]
     #print("Outputs",results)
 
