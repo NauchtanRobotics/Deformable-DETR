@@ -2,7 +2,7 @@
 
 set -x
 
-EXP_DIR=/content/drive/MyDrive/ml-data/r50_deformable_detr
+EXP_DIR=/content/drive/MyDrive/ml-data/TCD/r50_deformable_detr
 PY_ARGS=${@:1}
 
 python -u main.py \

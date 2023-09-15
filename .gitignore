@@ -4,3 +4,5 @@ data.zip
 .vscode
 demo.sh
 *.pyc
+wandb
+.vscode
