@@ -163,8 +163,33 @@ def main(args):
         model.cuda()
     model.eval()
 
-    NAMES = ['bus', 'car', 'heavy truck', 'light truck', 'motorbike']
-    COLORS = ['#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f']
+    NAMES = [
+        "articulated_truck",
+        "bicycle",
+        "bus",
+        "car",
+        "motorcycle",
+        "motorized_vehicle",
+        "non-motorized_vehicle",
+        "pedestrian",
+        "pickup_truck",
+        "single_unit_truck",
+        "work_van"
+    ]
+
+    COLORS = [
+        '#1abc9c', 
+        '#2ecc71', 
+        '#3498db', 
+        '#9b59b6', 
+        '#f1c40f',
+        '#e67e22',
+        '#e74c3c',
+        '#ecf0f1',
+        '#34495e',
+        '#95a5a6',
+        '#16a085'
+    ]
 
     anno = json.load(open('/content/Deformable-DETR/data/coco/annotations/instances_val2017.json'))
 
