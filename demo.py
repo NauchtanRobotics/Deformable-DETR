@@ -239,7 +239,7 @@ def main(args):
         
         i = 0
         for xmin, ymin, xmax, ymax in boxes[0].tolist():
-            label = labels[i] - 1
+            label = labels[i]
             draw.rectangle(((xmin, ymin), (xmax, ymax)), outline=COLORS[label], width=3)
             draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
 
@@ -252,7 +252,7 @@ def main(args):
         for obj in anno['annotations']:
             if obj['image_id'] == img_id:
                 xmin, ymin, w, h = obj['bbox']
-                label = obj['category_id'] - 1
+                label = obj['category_id']
 
                 _draw.rectangle(((xmin, ymin), (xmin + w, ymin + h)), outline=COLORS[label], width=3)
                 _draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
