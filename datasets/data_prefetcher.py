@@ -17,8 +17,10 @@ class data_prefetcher():
         self.prefetch = prefetch
         self.device = device
 
+        loader.flag = True
         for _ in range(skip):
             next(self.loader)
+        loader.flag = False
 
         if prefetch:
             self.stream = torch.cuda.Stream()

@@ -193,10 +193,13 @@ def main(args):
 
     def update_skip(_skip):
         shit['skip'] = _skip
+        dataset_train.offset = _skip
 
     print("Start training")
     start_time = time.time()
     epoch = args.start_epoch
+
+    dataset_train.offset = shit['skip']
 
     while (True):
         if args.distributed:
