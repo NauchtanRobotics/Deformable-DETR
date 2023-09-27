@@ -68,7 +68,8 @@ class CocoDetection(VisionDataset):
         Returns:
             tuple: Tuple (image, target). target is the object returned by ``coco.loadAnns``.
         """
-        index = (index + self.offset) % len(self.ids)
+        if index < self.offset:
+            return None, None
 
         coco = self.coco
         img_id = self.ids[index]
