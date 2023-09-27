@@ -124,7 +124,6 @@ def get_args_parser():
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                         help='start epoch')
-    parser.add_argument('--imgs_dir', type=str, help='input images folder for inference')
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--num_workers', default=2, type=int)
     parser.add_argument('--cache_mode', default=False, action='store_true', help='whether to cache images on memory')
@@ -191,13 +190,26 @@ def main(args):
         '#16a085'
     ]
 
-    anno = json.load(open('/content/Deformable-DETR/data/coco/annotations/instances_val2017.json'))
+    anno = json.load(open('./data/coco/annotations/instances_val2017.json'))
 
-    font = ImageFont.truetype('/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf', 18)
+    from util.colab import in_colab
+    
+    if in_colab():
+        font = ImageFont.truetype('/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf', 18)
+    else:
+        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSans.ttf', 18)
 
-    for img_file in os.listdir(args.imgs_dir):
+    img_files = anno['images']
+    random.shuffle(img_files)
+    img_files = img_files[:100]
+
+    img_files = list(map(lambda x: x['file_name'], img_files))
+
+    from tqdm import tqdm
+    for i in tqdm(range(len(img_files))):
+        img_file = img_files[i]
         t0 = time.time()
-        img_path = os.path.join(args.imgs_dir, img_file)
+        img_path = os.path.join('./data/coco/val2017/', img_file)
         out_imgName = './'+ args.output_dir + '/' + 'out_'+img_file[:-4]+'.png'
         im = Image.open(img_path)
         # mean-std normalize the input image (batch-size: 1)
@@ -229,7 +241,6 @@ def main(args):
         img_h, img_w = target_sizes.unbind(1)
         scale_fct = torch.stack([img_w, img_h, img_w, img_h], dim=1)
         boxes = boxes * scale_fct[:, None, :]
-        print(time.time()-t0)
         #plot_results
         source_img = Image.open(img_path).convert("RGBA")
         _source_img = Image.open(img_path).convert("RGBA")
