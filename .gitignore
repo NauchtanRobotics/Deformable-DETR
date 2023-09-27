@@ -5,4 +5,8 @@ data.zip
 demo.sh
 *.pyc
 wandb
+models/ops/build
+models/ops/dist
+models/ops/MultiScaleDeformableAttention.egg-info
+experiments
 .vscode

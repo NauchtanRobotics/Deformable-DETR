@@ -12,10 +12,14 @@ def to_cuda(samples, targets, device):
     return samples, targets
 
 class data_prefetcher():
-    def __init__(self, loader, device, prefetch=True):
+    def __init__(self, loader, device, prefetch=True, skip=0):
         self.loader = iter(loader)
         self.prefetch = prefetch
         self.device = device
+
+        for _ in range(skip):
+            next(self.loader)
+
         if prefetch:
             self.stream = torch.cuda.Stream()
             self.preload()
@@ -41,7 +45,7 @@ class data_prefetcher():
             # self.next_input_gpu.copy_(self.next_input, non_blocking=True)
             # self.next_target_gpu.copy_(self.next_target, non_blocking=True)
             # self.next_input = self.next_input_gpu
-            # self.next_target = self.next_target_gpu
+            # self.next_target = self.next_targ et_gpu
 
             # With Amp, it isn't necessary to manually convert data to half.
             # if args.fp16:

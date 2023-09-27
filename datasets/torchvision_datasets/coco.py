@@ -31,7 +31,7 @@ class CocoDetection(VisionDataset):
     """
 
     def __init__(self, root, annFile, transform=None, target_transform=None, transforms=None,
-                 cache_mode=False, local_rank=0, local_size=1):
+                 cache_mode=False, local_rank=0, local_size=1, offset=0):
         super(CocoDetection, self).__init__(root, transforms, transform, target_transform)
         from pycocotools.coco import COCO
         self.coco = COCO(annFile)
@@ -39,6 +39,7 @@ class CocoDetection(VisionDataset):
         self.cache_mode = cache_mode
         self.local_rank = local_rank
         self.local_size = local_size
+        self.offset = offset
         if cache_mode:
             self.cache = {}
             self.cache_images()
@@ -67,6 +68,8 @@ class CocoDetection(VisionDataset):
         Returns:
             tuple: Tuple (image, target). target is the object returned by ``coco.loadAnns``.
         """
+        index = (index + self.offset) % len(self.ids)
+
         coco = self.coco
         img_id = self.ids[index]
         ann_ids = coco.getAnnIds(imgIds=img_id)
