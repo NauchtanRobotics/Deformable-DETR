@@ -20,7 +20,7 @@ from io import BytesIO
 class CocoDetection(VisionDataset):
     """`MS Coco Detection <http://mscoco.org/dataset/#detections-challenge2016>`_ Dataset.
     Args:
-        root (string): Root directory where images are downloaded to.
+        root (string): Root directory where images are downloadedhj to.
         annFile (string): Path to json annotation file.
         transform (callable, optional): A function/transform that  takes in an PIL image
             and returns a transformed version. E.g, ``transforms.ToTensor``
@@ -39,7 +39,6 @@ class CocoDetection(VisionDataset):
         self.cache_mode = cache_mode
         self.local_rank = local_rank
         self.local_size = local_size
-        self.flag = False
 
         if cache_mode:
             self.cache = {}
@@ -69,9 +68,6 @@ class CocoDetection(VisionDataset):
         Returns:
             tuple: Tuple (image, target). target is the object returned by ``coco.loadAnns``.
         """
-        if self.flag:
-            return None, None
-        
         coco = self.coco
         img_id = self.ids[index]
         ann_ids = coco.getAnnIds(imgIds=img_id)

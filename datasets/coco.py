@@ -15,6 +15,7 @@ Mostly copy-paste from https://github.com/pytorch/vision/blob/13b35ff/references
 from pathlib import Path
 
 import torch
+import os
 import torch.utils.data
 from pycocotools import mask as coco_mask
 
@@ -37,6 +38,7 @@ class CocoDetection(TvCocoDetection):
         img, target = self.prepare(img, target)
         if self._transforms is not None:
             img, target = self._transforms(img, target)
+
         return img, target
 
 

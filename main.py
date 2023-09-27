@@ -193,19 +193,16 @@ def main(args):
 
     def update_skip(_skip):
         shit['skip'] = _skip
-        dataset_train.offset = _skip
 
     print("Start training")
     start_time = time.time()
     epoch = args.start_epoch
 
-    dataset_train.offset = shit['skip']
-
     while (True):
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(
-            model, criterion, data_loader_train, optimizer, device, epoch, args.clip_max_norm, skip=shit['skip'], save_model=save_model, update_skip=update_skip, d=args.d)
+            model, criterion, data_loader_train, optimizer, device, epoch, args.clip_max_norm, dataset_train, skip=shit['skip'], save_model=save_model, update_skip=update_skip, d=args.d)
         lr_scheduler.step()
         if args.output_dir:
             update_skip(0)

@@ -24,7 +24,7 @@ from datasets.data_prefetcher import data_prefetcher
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int, max_norm: float = 0, save_model=None, update_skip=None, skip=0, d=0):
+                    device: torch.device, epoch: int, max_norm: float = 0, dataset=None, save_model=None, update_skip=None, skip=0, d=0):
     model.train()
     criterion.train()
     metric_logger = utils.MetricLogger(delimiter="  ", skip=skip)
@@ -33,8 +33,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     metric_logger.add_meter('grad_norm', utils.SmoothedValue(window_size=1, fmt='{value:.2f}'))
     header = 'Epoch: [{}]'.format(epoch)
     print_freq = 10
-
-    prefetcher = data_prefetcher(data_loader, device, prefetch=True, skip=skip)
+    
+    prefetcher = data_prefetcher(data_loader, device, prefetch=True, skip=skip, dataset=dataset)
     samples, targets = prefetcher.next()
 
     # for samples, targets in metric_logger.log_every(data_loader, print_freq, header):

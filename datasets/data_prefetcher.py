@@ -3,7 +3,7 @@
 # Copyright (c) 2020 SenseTime. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0 [see LICENSE for details]
 # ------------------------------------------------------------------------
-
+import os
 import torch
 
 def to_cuda(samples, targets, device):
@@ -12,15 +12,14 @@ def to_cuda(samples, targets, device):
     return samples, targets
 
 class data_prefetcher():
-    def __init__(self, loader, device, prefetch=True, skip=0):
+    def __init__(self, loader, device, prefetch=True, skip=0, dataset=None):
         self.loader = iter(loader)
         self.prefetch = prefetch
         self.device = device
 
-        loader.flag = True
-        for _ in range(skip):
+        from tqdm import tqdm
+        for _ in tqdm(range(skip), 'Skipping'):
             next(self.loader)
-        loader.flag = False
 
         if prefetch:
             self.stream = torch.cuda.Stream()
