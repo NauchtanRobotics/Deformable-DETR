@@ -16,8 +16,7 @@ def get_args_parser():
     parser.add_argument('--clip_max_norm', default=0.1, type=float,
                         help='gradient clipping max norm')
     
-    
-
+    parser.add_argument('--d', default=1000, type=int)
 
     parser.add_argument('--sgd', action='store_true')
 
