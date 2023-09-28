@@ -44,6 +44,7 @@ class DistributedSampler(Sampler):
         self.num_samples = int(math.ceil(len(self.dataset) * 1.0 / self.num_replicas))
         self.total_size = self.num_samples * self.num_replicas
         self.shuffle = shuffle
+        self.offset = 0
 
     def __iter__(self):
         if self.shuffle:
@@ -63,7 +64,12 @@ class DistributedSampler(Sampler):
         indices = indices[offset : offset + self.num_samples]
         assert len(indices) == self.num_samples
 
-        return iter(indices)
+        it = iter(indices)
+
+        for _ in range(self.offset):
+            next(it)
+
+        return it
 
     def __len__(self):
         return self.num_samples

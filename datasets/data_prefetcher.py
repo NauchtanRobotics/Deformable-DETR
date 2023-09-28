@@ -12,14 +12,10 @@ def to_cuda(samples, targets, device):
     return samples, targets
 
 class data_prefetcher():
-    def __init__(self, loader, device, prefetch=True, skip=0, dataset=None):
+    def __init__(self, loader, device, prefetch=True):
         self.loader = iter(loader)
         self.prefetch = prefetch
         self.device = device
-
-        from tqdm import tqdm
-        for _ in tqdm(range(skip), 'Skipping'):
-            next(self.loader)
 
         if prefetch:
             self.stream = torch.cuda.Stream()

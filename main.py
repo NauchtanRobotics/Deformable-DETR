@@ -26,6 +26,8 @@ from engine import evaluate, train_one_epoch
 from models import build_model
 from util.args import get_args_parser
 
+from util.sampler import SkipableRandomSampler
+
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -62,7 +64,7 @@ def main(args):
             sampler_train = samplers.DistributedSampler(dataset_train)
             sampler_val = samplers.DistributedSampler(dataset_val, shuffle=False)
     else:
-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
+        sampler_train = SkipableRandomSampler(dataset_train, skip=0)
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
     batch_sampler_train = torch.utils.data.BatchSampler(
@@ -174,6 +176,18 @@ def main(args):
             utils.save_on_master(coco_evaluator.coco_eval["bbox"].eval, output_dir / "eval.pth")
         return
     
+    
+
+    def update_skip(_skip):
+        shit['skip'] = _skip
+        sampler_train.offset = _skip
+
+    print("Start training")
+    start_time = time.time()
+    epoch = args.start_epoch
+
+    sampler_train.offset = shit['skip']
+
     def save_model():
         checkpoint_paths = [output_dir / 'checkpoint.pth']
         # extra checkpoint before LR drop and every 5 epochs
@@ -190,13 +204,6 @@ def main(args):
             }, checkpoint_path)
 
         print("Saved checkpoint with epoch {} and skip {} iterations".format(epoch, shit['skip']))
-
-    def update_skip(_skip):
-        shit['skip'] = _skip
-
-    print("Start training")
-    start_time = time.time()
-    epoch = args.start_epoch
 
     while (True):
         if args.distributed:
