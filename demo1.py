@@ -163,8 +163,33 @@ def main(args):
         model.cuda()
     model.eval()
 
-    NAMES = ['bus', 'car', 'heavy truck', 'light truck', 'motorbike']
-    COLORS = ['#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f']
+    NAMES = [
+        "articulated_truck",
+        "bicycle",
+        "bus",
+        "car",
+        "motorcycle",
+        "motorized_vehicle",
+        "non-motorized_vehicle",
+        "pedestrian",
+        "pickup_truck",
+        "single_unit_truck",
+        "work_van"
+    ]
+
+    COLORS = [
+        '#1abc9c', 
+        '#2ecc71', 
+        '#3498db', 
+        '#9b59b6', 
+        '#f1c40f',
+        '#e67e22',
+        '#e74c3c',
+        '#ecf0f1',
+        '#34495e',
+        '#95a5a6',
+        '#16a085'
+    ]
 
     anno = json.load(open('/content/Deformable-DETR/data/coco/annotations/instances_val2017.json'))
 
@@ -214,7 +239,7 @@ def main(args):
         
         i = 0
         for xmin, ymin, xmax, ymax in boxes[0].tolist():
-            label = labels[i] - 1
+            label = labels[i]
             draw.rectangle(((xmin, ymin), (xmax, ymax)), outline=COLORS[label], width=3)
             draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
 
@@ -227,7 +252,7 @@ def main(args):
         for obj in anno['annotations']:
             if obj['image_id'] == img_id:
                 xmin, ymin, w, h = obj['bbox']
-                label = obj['category_id'] - 1
+                label = obj['category_id']
 
                 _draw.rectangle(((xmin, ymin), (xmin + w, ymin + h)), outline=COLORS[label], width=3)
                 _draw.text((xmin + 5, ymin + 5), NAMES[label], font=font)
