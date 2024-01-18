@@ -18,12 +18,12 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-import datasets
-import util.misc as utils
-import datasets.samplers as samplers
-from datasets import build_dataset, get_coco_api_from_dataset
+from deformable_detr import datasets
+import deformable_detr.util.misc as utils
+import deformable_detr.datasets.samplers as samplers
+from deformable_detr.datasets import build_dataset, get_coco_api_from_dataset
 from engine import evaluate, train_one_epoch
-from models import build_model
+from deformable_detr.models import build_model
 
 
 def get_args_parser():

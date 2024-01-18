@@ -15,6 +15,7 @@ import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 
+#import deformable_detr.models.MultiScaleDeformableAttention as MSDA
 import MultiScaleDeformableAttention as MSDA
 
 

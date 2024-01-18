@@ -12,6 +12,7 @@ COCO dataset which returns image_id for evaluation.
 
 Mostly copy-paste from https://github.com/pytorch/vision/blob/13b35ff/references/detection/coco_utils.py
 """
+import os
 from pathlib import Path
 
 import torch
@@ -19,8 +20,8 @@ import torch.utils.data
 from pycocotools import mask as coco_mask
 
 from .torchvision_datasets import CocoDetection as TvCocoDetection
-from util.misc import get_local_rank, get_local_size
-import datasets.transforms as T
+from deformable_detr.util.misc import get_local_rank, get_local_size
+import deformable_detr.datasets.transforms as T
 
 
 class CocoDetection(TvCocoDetection):
@@ -166,4 +167,42 @@ def build(image_set, args):
     img_folder, ann_file = PATHS[image_set]
     dataset = CocoDetection(img_folder, ann_file, transforms=make_coco_transforms(image_set), return_masks=args.masks,
                             cache_mode=args.cache_mode, local_rank=get_local_rank(), local_size=get_local_size())
+    return dataset
+
+
+def _get_root_dir(coco_path):
+    coco_dir = coco_path[:-1] if coco_path[-1] == '/' else coco_path
+    coco_dir = os.path.dirname(coco_dir)
+    root_dir = Path(coco_dir)
+    return root_dir
+
+
+def build_custom_dataset_coco_style(image_set, args):
+    root = Path(args.coco_path)
+    assert root.exists(), f'provided srd path {root} does not exist'
+    root_dir = _get_root_dir(args.coco_path)
+
+    dataset_paths = {
+        "train": (
+            root / "train" / "images",
+            root / "annotations" / "train.json"
+        ),
+        "val": (
+            root / "val" / "images",
+            root / "annotations" / "val.json"
+        ),
+    }
+
+    img_folder, ann_file = dataset_paths[image_set]
+    assert img_folder.exists() and img_folder.is_dir() and len(list(img_folder.rglob("*.jpg"))), f"Folder not found or is empty: {str(img_folder)}"
+    assert ann_file.exists() and ann_file.is_file(), f"Annotations file is not a file: {str(ann_file)}"
+    dataset = CocoDetection(
+        img_folder,
+        ann_file,
+        transforms=make_coco_transforms(image_set),
+        return_masks=args.masks,
+        cache_mode=args.cache_mode,
+        local_rank=get_local_rank(),
+        local_size=get_local_size()
+    )
     return dataset

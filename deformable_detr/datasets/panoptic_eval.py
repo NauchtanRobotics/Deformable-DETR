@@ -10,7 +10,7 @@
 import json
 import os
 
-import util.misc as utils
+import deformable_detr.util.misc as utils
 
 try:
     from panopticapi.evaluation import pq_compute

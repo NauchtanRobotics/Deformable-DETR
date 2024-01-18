@@ -21,15 +21,18 @@ import pickle
 from typing import Optional, List
 
 import torch
-import torch.nn as nn
 import torch.distributed as dist
 from torch import Tensor
 
 # needed due to empty tensor bug in pytorch and torchvision 0.5
 import torchvision
-if float(torchvision.__version__[:3]) < 0.5:
+from packaging.version import Version
+
+
+if Version(torchvision.__version__) < Version("0.5.0"):
     import math
     from torchvision.ops.misc import _NewEmptyTensorOp
+
     def _check_size_scale_factor(dim, size, scale_factor):
         # type: (int, Optional[List[int]], Optional[float]) -> None
         if size is None and scale_factor is None:
@@ -41,6 +44,7 @@ if float(torchvision.__version__[:3]) < 0.5:
                 "scale_factor shape must match input shape. "
                 "Input is {}D, scale_factor size is {}".format(dim, len(scale_factor))
             )
+
     def _output_size(dim, input, size, scale_factor):
         # type: (int, Tensor, Optional[List[int]], Optional[float]) -> List[int]
         assert dim == 2
@@ -54,7 +58,7 @@ if float(torchvision.__version__[:3]) < 0.5:
         return [
             int(math.floor(input.size(i + 2) * scale_factors[i])) for i in range(dim)
         ]
-elif float(torchvision.__version__[:3]) < 0.7:
+elif Version(torchvision.__version__) < Version("0.7.0"):
     from torchvision.ops import _new_empty_tensor
     from torchvision.ops.misc import _output_size
 

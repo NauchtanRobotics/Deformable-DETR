@@ -10,7 +10,7 @@
 import torch.utils.data
 from .torchvision_datasets import CocoDetection
 
-from .coco import build as build_coco
+from .coco import build as build_coco, build_custom_dataset_coco_style
 
 
 def get_coco_api_from_dataset(dataset):
@@ -30,4 +30,5 @@ def build_dataset(image_set, args):
         # to avoid making panopticapi required for coco
         from .coco_panoptic import build as build_coco_panoptic
         return build_coco_panoptic(image_set, args)
-    raise ValueError(f'dataset {args.dataset_file} not supported')
+    else:  # e.g. args.dataset_file == "srd":
+        return build_custom_dataset_coco_style(image_set, args)

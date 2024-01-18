@@ -1,0 +1,78 @@
+# Start FROM Nvidia PyTorch image https://ngc.nvidia.com/catalog/containers/nvidia:pytorch
+FROM nvidia/cuda:11.0.3-cudnn8-devel-ubuntu18.04
+
+ENV LANG C.UTF-8
+
+# Install dependencies
+ENV PATH /usr/local/nvidia/bin:/usr/local/nvidia/lib64:$PATH
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+ENV PYTHON_VERSION=3.8
+RUN apt-get update && apt-get install wget unzip zip -y
+RUN wget -O ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
+     chmod +x ~/miniconda.sh && \
+     ~/miniconda.sh -b -p /opt/conda && \
+     rm ~/miniconda.sh
+ENV PATH /opt/conda/bin:$PATH
+RUN conda create -y -n deformable_detr python=3.9 pytorch=1 torchvision=0 cudatoolkit=9 -c pytorch
+
+COPY ./ ./
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "deformable_detr", "/bin/bash", "-c"]
+RUN ./make_assuming_venv_activated.sh
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+RUN python3 ./deformable_detr/models/ops/test.py
+# RUN pip install gsutil
+RUN nvcc --version
+RUN python --version
+RUN which python3
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "myenv", "python3", "./deformable_detr/models/ops/test.py"]
+# CMD ["python", "./deformable_detr/models/ops/test.py"]
+# # Create working directory
+# RUN mkdir -p /usr/src/app
+# WORKDIR /usr/src/app
+#
+# # Copy contents
+# COPY . /usr/src/app
+
+
+
+
+
+
+# Copy weights
+#RUN python3 -c "from models import *; \
+#attempt_download('weights/yolov5s.pt'); \
+#attempt_download('weights/yolov5m.pt'); \
+#attempt_download('weights/yolov5l.pt')"
+
+
+# ---------------------------------------------------  Extras Below  ---------------------------------------------------
+
+# Build and Push
+# t=ultralytics/yolov5:latest && sudo docker build -t $t . && sudo docker push $t
+# for v in {300..303}; do t=ultralytics/coco:v$v && sudo docker build -t $t . && sudo docker push $t; done
+
+# Pull and Run
+# t=ultralytics/yolov5:latest && sudo docker pull $t && sudo docker run -it --ipc=host $t
+
+# Pull and Run with local directory access
+# t=ultralytics/yolov5:latest && sudo docker pull $t && sudo docker run -it --ipc=host --gpus all -v "$(pwd)"/coco:/usr/src/coco $t
+
+# Kill all
+# sudo docker kill $(sudo docker ps -q)
+
+# Kill all image-based
+# sudo docker kill $(sudo docker ps -a -q --filter ancestor=ultralytics/yolov5:latest)
+
+# Bash into running container
+# sudo docker container exec -it ba65811811ab bash
+
+# Bash into stopped container
+# sudo docker commit 092b16b25c5b usr/resume && sudo docker run -it --gpus all --ipc=host -v "$(pwd)"/coco:/usr/src/coco --entrypoint=sh usr/resume
+
+# Send weights to GCP
+# python -c "from utils.general import *; strip_optimizer('runs/exp0_*/weights/best.pt', 'tmp.pt')" && gsutil cp tmp.pt gs://*.pt
+
+# Clean up
+# docker system prune -a --volumes

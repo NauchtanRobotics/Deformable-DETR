@@ -5,8 +5,6 @@
 # ------------------------------------------------------------------------------------------------
 # Modified from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 # ------------------------------------------------------------------------------------------------
-
-import os
 import glob
 
 import torch
@@ -17,37 +15,51 @@ from torch.utils.cpp_extension import CUDAExtension
 
 from setuptools import find_packages
 from setuptools import setup
+from pathlib import Path
+
 
 requirements = ["torch", "torchvision"]
 
+
 def get_extensions():
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "src")
+    this_dir = Path(__file__).parent
+    extensions_dir = this_dir / "deformable_detr" / "models" / "ops" / "src"
 
-    main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
-    source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
-    source_cuda = glob.glob(os.path.join(extensions_dir, "cuda", "*.cu"))
+    main_file = extensions_dir.glob("*.cpp")
+    source_cpu_dir = extensions_dir / "cpu"
+    source_cpu = source_cpu_dir.glob("*.cpp")
 
-    sources = main_file + source_cpu
+    source_cuda_dir = extensions_dir / "cuda"
+    source_cuda = source_cuda_dir.glob("*.cu")
+
+    sources = list(main_file) + list(source_cpu) + list(source_cuda)
     extension = CppExtension
     extra_compile_args = {"cxx": []}
     define_macros = []
 
-    if torch.cuda.is_available() and CUDA_HOME is not None:
-        extension = CUDAExtension
-        sources += source_cuda
-        define_macros += [("WITH_CUDA", None)]
-        extra_compile_args["nvcc"] = [
-            "-DCUDA_HAS_FP16=1",
-            "-D__CUDA_NO_HALF_OPERATORS__",
-            "-D__CUDA_NO_HALF_CONVERSIONS__",
-            "-D__CUDA_NO_HALF2_OPERATORS__",
-        ]
-    else:
-        raise NotImplementedError('Cuda is not availabel')
+    if CUDA_HOME is None:
+        raise NotImplementedError("CUDA_HOME not resolved")
 
-    sources = [os.path.join(extensions_dir, s) for s in sources]
-    include_dirs = [extensions_dir]
+    if not torch.cuda.is_available():
+        raise NotImplementedError('Cuda is not available')
+
+    extension = CUDAExtension
+    sources = [str(s) for s in sources]
+    define_macros += [("WITH_CUDA", None)]
+    extra_compile_args["nvcc"] = [
+        "-DCUDA_HAS_FP16=1",
+        "-D__CUDA_NO_HALF_OPERATORS__",
+        "-D__CUDA_NO_HALF_CONVERSIONS__",
+        "-D__CUDA_NO_HALF2_OPERATORS__",
+    ]
+
+    sources = [str(s) for s in sources]
+    include_dirs = [str(extensions_dir)]
+    print("sources: ")
+    print(sources)
+    print("include_dirs: ")
+    print(include_dirs)
+    print()
     ext_modules = [
         extension(
             "MultiScaleDeformableAttention",

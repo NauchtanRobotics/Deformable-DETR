@@ -16,10 +16,10 @@ import sys
 from typing import Iterable
 
 import torch
-import util.misc as utils
-from datasets.coco_eval import CocoEvaluator
-from datasets.panoptic_eval import PanopticEvaluator
-from datasets.data_prefetcher import data_prefetcher
+import deformable_detr.util.misc as utils
+from deformable_detr.datasets.coco_eval import CocoEvaluator
+from deformable_detr.datasets.panoptic_eval import PanopticEvaluator
+from deformable_detr.datasets.data_prefetcher import data_prefetcher
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
