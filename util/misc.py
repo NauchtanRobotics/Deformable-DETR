@@ -27,7 +27,8 @@ from torch import Tensor
 
 # needed due to empty tensor bug in pytorch and torchvision 0.5
 import torchvision
-if float(torchvision.__version__[:3]) < 0.5:
+from packaging.version import Version
+if Version(torchvision.__version__) < Version("0.5.0"):
     import math
     def _check_size_scale_factor(dim, size, scale_factor):
         # type: (int, Optional[List[int]], Optional[float]) -> None
@@ -53,7 +54,7 @@ if float(torchvision.__version__[:3]) < 0.5:
         return [
             int(math.floor(input.size(i + 2) * scale_factors[i])) for i in range(dim)
         ]
-elif float(torchvision.__version__[:3]) < 0.7:
+elif Version(torchvision.__version__) < Version("0.7.0"):
     from torchvision.ops import _new_empty_tensor
     from torchvision.ops.misc import _output_size
 
