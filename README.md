@@ -117,6 +117,14 @@ code_root/
 
 ### Training
 
+#### Using Torchrun
+
+```bash
+poetry run torchrun --nnodes=1 --nproc_per_node=2 --master_port=29501 --max-restarts=1 main.py --dataset_file name_to_identify_training_run --coco_path /path/to/root/of/data --epochs 50 --batch_size 2
+# e.g.
+poetry run torchrun --nnodes=1 --nproc_per_node=2 --master_port=29501 --max-restarts=1 main.py --dataset_file deformableSRD --coco_path /home/david/production/yolov5/datasets/srd40.2.1 --epochs 50 --batch_size 4 --output_dir "runs/train"
+```
+
 #### Training on single node
 
 For example, the command for training Deformable DETR on 8 GPUs is as following:
@@ -167,3 +175,4 @@ You can get the config file and pretrained model of Deformable DETR (the link is
 ```
 
 You can also run distributed evaluation by using ```./tools/run_dist_launch.sh``` or ```./tools/run_dist_slurm.sh```.
+
